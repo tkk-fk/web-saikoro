@@ -54,7 +54,6 @@
       background: #111;
       border-radius: 9999px;
       position: absolute;
-      /* どのドットも “中心” を指定座標に合わせる */
       transform: translate(-50%, -50%);
     }
 
@@ -75,12 +74,19 @@
     .decelerating {
       animation: slowSpin3d 0.7s ease-out forwards;
     }
+
+    /* 個数ボタンのアクティブ状態 */
+    .count-active {
+      background-color: #3b82f6 !important; /* blue-500 */
+      color: #ffffff !important;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    }
   </style>
 </head>
 <body class="bg-gray-100 p-6 flex flex-col items-center">
 
   <h1 class="text-3xl font-bold text-blue-600 mb-6">
-    🎲 Webサイコロ
+    🎲 webサイコロ
   </h1>
 
   <!-- 個数ボタン（1〜9） -->
@@ -143,7 +149,7 @@ function createFace(num) {
   const f = document.createElement("div");
   f.className = "face f" + num;
 
-  // 20 / 50 / 80 % の 3×3 グリッド上に配置
+  // 25 / 50 / 75 % の 3×3 グリッド上に配置
   const layouts = {
     1: [[50,50]],
     2: [[25,25],[75,75]],
@@ -235,17 +241,36 @@ function toggleRoll(state){
   }
 }
 
-// 個数ボタン
-document.querySelectorAll(".countBtn").forEach(btn=>{
+/* ─── 個数ボタンまわり ─── */
+
+const countButtons = document.querySelectorAll(".countBtn");
+const DEFAULT_COUNT = 6;
+
+function setActiveCountButton(n) {
+  countButtons.forEach(btn => {
+    if (parseInt(btn.dataset.n, 10) === n) {
+      btn.classList.add("count-active");
+    } else {
+      btn.classList.remove("count-active");
+    }
+  });
+}
+
+// 個数ボタンにイベント付与
+countButtons.forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    renderDice(parseInt(btn.dataset.n));
+    const n = parseInt(btn.dataset.n, 10);
+    renderDice(n);
+    setActiveCountButton(n);
   });
 });
 
-// 初期は 6こ 表示
-renderDice(1);
+// 初期は 6こ 表示＆ボタンをアクティブに
+renderDice(DEFAULT_COUNT);
+setActiveCountButton(DEFAULT_COUNT);
 
-// 一括操作
+/* ─── 一括操作 ─── */
+
 document.getElementById("rollAll").onclick = ()=>{
   diceList.forEach(state=> startRoll(state));
 };
